@@ -2,13 +2,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-url="https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-18-2022.csv"
-df = pd.read_csv(url)  
+df = pd.read_csv("Archivo.csv")  
 st.write("DataFrame:")
 st.dataframe(df)
 
 # Estadísticas básicas
-st.subheader("Descripcion de los datos")
+st.subheader("📈 Descripción de los datos")
 st.write(df.describe())
 
 # Agrupar por país
@@ -26,7 +25,7 @@ grouped = grouped.merge(incident_rate, on="Country_Region")
 
 # Renombrar columnas
 grouped = grouped.rename(columns={
-    "Country_Region": "Pais",
+    "Country_Region": "País",
     "Confirmed": "Confirmados",
     "Deaths": "Fallecidos",
     "CFR": "CFR (%)",
