@@ -8,7 +8,7 @@ st.write("DataFrame:")
 st.dataframe(df)
 
 # Estadísticas básicas
-st.subheader("📈 Descripción de los datos")
+st.subheader("Descripcion de los datos")
 st.write(df.describe())
 
 # Agrupar por país
