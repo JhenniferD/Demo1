@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("Archivo.csv")  
+url="https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-18-2022.csv"
+df = pd.read_csv("url")  
 st.write("DataFrame:")
 st.dataframe(df)
 
