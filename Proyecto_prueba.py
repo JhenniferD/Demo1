@@ -292,3 +292,72 @@ plt.title("Gráfico de Control - Casos Confirmados por País")
 plt.legend()
 plt.savefig("grafico_control.png", dpi=300)
 plt.show()
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. Importar dataset desde URL (ejemplo: 18 abril 2022)
+url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-18-2022.csv"
+df = pd.read_csv(url)
+
+# ==============================
+# 5.3 Calidad de datos
+# ==============================
+
+# Revisar valores nulos
+print("Valores nulos por columna:")
+print(df.isnull().sum())
+
+# Detectar inconsistencias (ejemplo: valores negativos)
+inconsistencias = df[(df["Confirmed"] < 0) | (df["Deaths"] < 0)]
+print("\nInconsistencias detectadas:")
+print(inconsistencias)
+
+# Gráfico de control: Confirmados por país
+grouped = df.groupby("Country_Region", as_index=False).agg({"Confirmed": "sum"})
+media = grouped["Confirmed"].mean()
+std = grouped["Confirmed"].std()
+
+plt.figure(figsize=(12,6))
+plt.plot(grouped["Confirmed"].values, marker="o")
+plt.axhline(media, color="green", linestyle="--", label="Media")
+plt.axhline(media + 2*std, color="red", linestyle="--", label="Límite superior (2σ)")
+plt.axhline(media - 2*std, color="red", linestyle="--", label="Límite inferior (2σ)")
+plt.title("Gráfico de Control - Casos Confirmados por País")
+plt.legend()
+plt.savefig("grafico_control.png", dpi=300)
+plt.show()
+
+# ==============================
+# 5.4 Exportación
+# ==============================
+
+# Exportar tabla procesada
+grouped.to_csv("resumen_confirmados.csv", index=False)
+
+# Guardar gráfico en SVG también
+plt.savefig("grafico_control.svg")
+
+# ==============================
+# 5.5 Narrativa automática
+# ==============================
+
+# País con más confirmados
+top_confirmed = grouped.loc[grouped["Confirmed"].idxmax()]
+
+# País con más muertes
+grouped_deaths = df.groupby("Country_Region", as_index=False).agg({"Deaths": "sum"})
+top_deaths = grouped_deaths.loc[grouped_deaths["Deaths"].idxmax()]
+
+narrativa = (
+    f"El análisis muestra que {top_confirmed['Country_Region']} tiene la mayor cantidad "
+    f"de casos confirmados ({top_confirmed['Confirmed']:,}), "
+    f"mientras que {top_deaths['Country_Region']} presenta el mayor número de muertes "
+    f"({top_deaths['Deaths']:,}). Estos hallazgos resaltan diferencias importantes en "
+    f"la propagación y el impacto del virus entre países."
+)
+
+print("\nNarrativa automática:")
+print(narrativa)
