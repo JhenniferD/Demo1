@@ -294,6 +294,8 @@ plt.savefig("grafico_control.png", dpi=300)
 plt.show()
 st.subheader("🔎 Calidad de Datos")
 
+
+#Calidad de datos
 st.write("**Valores nulos por columna:**")
 st.write(df.isnull().sum())
 

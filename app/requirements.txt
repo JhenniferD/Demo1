@@ -1,0 +1,10 @@
+matplotlib
+altair
+plotly
+streamlit
+pandas
+numpy
+statsmodels
+scikit-learn
+kaleido
+
