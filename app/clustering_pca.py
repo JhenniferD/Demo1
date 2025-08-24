@@ -6,6 +6,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import plotly.express as px
 import plotly.io as pio
+import kaleido
 
 pio.kaleido.scope.default_format = "png"
 pio.kaleido.scope.default_width = 800
