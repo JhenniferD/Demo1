@@ -293,56 +293,67 @@ plt.legend()
 plt.savefig("grafico_control.png", dpi=300)
 plt.show()
 
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-
-# 1. Importar dataset desde URL (ejemplo: 18 abril 2022)
-url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-18-2022.csv"
-df = pd.read_csv(url)
-
 # ==============================
-# 5.3 Calidad de datos
+# 2. Calidad de datos
 # ==============================
+st.subheader("🔎 Calidad de Datos")
 
-# Revisar valores nulos
-print("Valores nulos por columna:")
-print(df.isnull().sum())
+st.write("**Valores nulos por columna:**")
+st.write(df.isnull().sum())
 
-# Detectar inconsistencias (ejemplo: valores negativos)
 inconsistencias = df[(df["Confirmed"] < 0) | (df["Deaths"] < 0)]
-print("\nInconsistencias detectadas:")
-print(inconsistencias)
+if inconsistencias.empty:
+    st.success("✅ No se detectaron inconsistencias (valores negativos).")
+else:
+    st.warning("⚠️ Se encontraron inconsistencias:")
+    st.dataframe(inconsistencias)
 
-# Gráfico de control: Confirmados por país
+# ==============================
+# 3. Gráfico de control
+# ==============================
+st.subheader("📉 Gráfico de Control - Casos Confirmados por País")
+
 grouped = df.groupby("Country_Region", as_index=False).agg({"Confirmed": "sum"})
 media = grouped["Confirmed"].mean()
 std = grouped["Confirmed"].std()
 
-plt.figure(figsize=(12,6))
-plt.plot(grouped["Confirmed"].values, marker="o")
-plt.axhline(media, color="green", linestyle="--", label="Media")
-plt.axhline(media + 2*std, color="red", linestyle="--", label="Límite superior (2σ)")
-plt.axhline(media - 2*std, color="red", linestyle="--", label="Límite inferior (2σ)")
-plt.title("Gráfico de Control - Casos Confirmados por País")
-plt.legend()
-plt.savefig("grafico_control.png", dpi=300)
-plt.show()
+fig, ax = plt.subplots(figsize=(12,6))
+ax.plot(grouped["Confirmed"].values, marker="o")
+ax.axhline(media, color="green", linestyle="--", label="Media")
+ax.axhline(media + 2*std, color="red", linestyle="--", label="Límite superior (2σ)")
+ax.axhline(media - 2*std, color="red", linestyle="--", label="Límite inferior (2σ)")
+ax.set_title("Gráfico de Control - Casos Confirmados por País")
+ax.legend()
+
+st.pyplot(fig)
 
 # ==============================
-# 5.4 Exportación
+# 4. Exportación de datos y gráficos
 # ==============================
+st.subheader("📂 Exportación de Datos y Gráficos")
 
-# Exportar tabla procesada
-grouped.to_csv("resumen_confirmados.csv", index=False)
+csv = grouped.to_csv(index=False).encode("utf-8")
+st.download_button(
+    "⬇️ Descargar CSV (resumen por país)",
+    data=csv,
+    file_name="resumen_confirmados.csv",
+    mime="text/csv"
+)
 
-# Guardar gráfico en SVG también
-plt.savefig("grafico_control.svg")
+# Exportar gráfico como PNG
+fig.savefig("grafico_control.png", dpi=300)
+with open("grafico_control.png", "rb") as f:
+    st.download_button(
+        "⬇️ Descargar gráfico PNG",
+        data=f,
+        file_name="grafico_control.png",
+        mime="image/png"
+    )
 
 # ==============================
-# 5.5 Narrativa automática
+# 5. Narrativa automática
 # ==============================
+st.subheader("📝 Narrativa Automática")
 
 # País con más confirmados
 top_confirmed = grouped.loc[grouped["Confirmed"].idxmax()]
@@ -352,12 +363,11 @@ grouped_deaths = df.groupby("Country_Region", as_index=False).agg({"Deaths": "su
 top_deaths = grouped_deaths.loc[grouped_deaths["Deaths"].idxmax()]
 
 narrativa = (
-    f"El análisis muestra que {top_confirmed['Country_Region']} tiene la mayor cantidad "
-    f"de casos confirmados ({top_confirmed['Confirmed']:,}), "
-    f"mientras que {top_deaths['Country_Region']} presenta el mayor número de muertes "
-    f"({top_deaths['Deaths']:,}). Estos hallazgos resaltan diferencias importantes en "
-    f"la propagación y el impacto del virus entre países."
+    f"El análisis muestra que **{top_confirmed['Country_Region']}** tiene la mayor cantidad "
+    f"de casos confirmados (**{top_confirmed['Confirmed']:,}**), mientras que "
+    f"**{top_deaths['Country_Region']}** presenta el mayor número de muertes "
+    f"(**{top_deaths['Deaths']:,}**). Esto resalta diferencias importantes en la "
+    f"propagación y el impacto del virus entre países."
 )
 
-print("\nNarrativa automática:")
-print(narrativa)
+st.write(narrativa)
