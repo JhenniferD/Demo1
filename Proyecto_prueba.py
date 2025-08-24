@@ -292,10 +292,6 @@ plt.title("Gráfico de Control - Casos Confirmados por País")
 plt.legend()
 plt.savefig("grafico_control.png", dpi=300)
 plt.show()
-
-# ==============================
-# 2. Calidad de datos
-# ==============================
 st.subheader("🔎 Calidad de Datos")
 
 st.write("**Valores nulos por columna:**")
@@ -311,21 +307,37 @@ else:
 # ==============================
 # 3. Gráfico de control
 # ==============================
-st.subheader("📉 Gráfico de Control - Casos Confirmados por País")
+st.subheader("📉 Gráfico de Control - Confirmados y CFR (muertes/confirmados)")
 
-grouped = df.groupby("Country_Region", as_index=False).agg({"Confirmed": "sum"})
-media = grouped["Confirmed"].mean()
-std = grouped["Confirmed"].std()
+# Agrupar por país
+grouped = df.groupby("Country_Region", as_index=False).agg({"Confirmed": "sum", "Deaths": "sum"})
+grouped["CFR"] = (grouped["Deaths"] / grouped["Confirmed"]).fillna(0) * 100  # %
+
+# Gráfico de Confirmados
+media_conf = grouped["Confirmed"].mean()
+std_conf = grouped["Confirmed"].std()
 
 fig, ax = plt.subplots(figsize=(12,6))
-ax.plot(grouped["Confirmed"].values, marker="o")
-ax.axhline(media, color="green", linestyle="--", label="Media")
-ax.axhline(media + 2*std, color="red", linestyle="--", label="Límite superior (2σ)")
-ax.axhline(media - 2*std, color="red", linestyle="--", label="Límite inferior (2σ)")
+ax.plot(grouped["Confirmed"].values, marker="o", label="Confirmados")
+ax.axhline(media_conf, color="green", linestyle="--", label="Media Confirmados")
+ax.axhline(media_conf + 2*std_conf, color="red", linestyle="--", label="Límite sup (2σ)")
+ax.axhline(media_conf - 2*std_conf, color="red", linestyle="--")
 ax.set_title("Gráfico de Control - Casos Confirmados por País")
 ax.legend()
-
 st.pyplot(fig)
+
+# Gráfico de CFR (muertes/confirmados)
+media_cfr = grouped["CFR"].mean()
+std_cfr = grouped["CFR"].std()
+
+fig2, ax2 = plt.subplots(figsize=(12,6))
+ax2.plot(grouped["CFR"].values, marker="o", color="purple", label="CFR (%)")
+ax2.axhline(media_cfr, color="green", linestyle="--", label="Media CFR")
+ax2.axhline(media_cfr + 2*std_cfr, color="red", linestyle="--", label="Límite sup (2σ)")
+ax2.axhline(media_cfr - 2*std_cfr, color="red", linestyle="--")
+ax2.set_title("Gráfico de Control - Índice de Mortalidad (CFR%) por País")
+ax2.legend()
+st.pyplot(fig2)
 
 # ==============================
 # 4. Exportación de datos y gráficos
