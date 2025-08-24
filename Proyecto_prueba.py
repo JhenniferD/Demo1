@@ -97,6 +97,7 @@ except Exception:
     low_ci[mask_valid.values] = (p - z*se) * 100
     up_ci[mask_valid.values]  = (p + z*se) * 100
 
+#
 
 # Añadir columnas sin alterar tus nombres previos
 grouped["CFR_LI (%)"] = low_ci
